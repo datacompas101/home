@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataKompas – Web Analytics Intelligence</title>
+<meta name="description" content="End-to-end web analytics implementation, insights, CRO, and growth predictions. Expert analytics for modern businesses.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0e1a;
+    --ink-2: #141927;
+    --surface: #f5f4f0;
+    --accent: #00e5a0;
+    --accent-2: #0066ff;
+    --accent-warm: #ff6b35;
+    --text: #e8e6df;
+    --text-muted: #7a8090;
+    --border: rgba(255,255,255,0.07);
+    --glow: 0 0 40px rgba(0,229,160,0.15);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CURSOR */
+  .cursor { position: fixed; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform 0.1s, background 0.2s; mix-blend-mode: screen; }
+  .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid rgba(0,229,160,0.4); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all 0.15s ease; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(10,14,26,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta { background: var(--accent); color: var(--ink); padding: 0.6rem 1.4rem; border-radius: 4px; font-weight: 700; font-size: 0.85rem; text-decoration: none; font-family: 'Syne', sans-serif; letter-spacing: 0.02em; transition: all 0.2s; }
+  .nav-cta:hover { background: #fff; transform: translateY(-1px); }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 2px; background: var(--text); display: block; transition: all 0.3s; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 4rem 4rem;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 60% 40%, rgba(0,102,255,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 70% at 80% 80%, rgba(0,229,160,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 20% 60%, rgba(255,107,53,0.06) 0%, transparent 50%);
+  }
+  .grid-overlay {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 800px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.25);
+    padding: 0.35rem 1rem; border-radius: 50px;
+    font-size: 0.78rem; font-family: 'JetBrains Mono', monospace;
+    color: var(--accent); letter-spacing: 0.05em; text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: #fff;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  h1 em { font-style: normal; color: var(--accent); position: relative; }
+  h1 em::after {
+    content: '';
+    position: absolute; left: 0; bottom: 4px; right: 0; height: 3px;
+    background: var(--accent);
+    transform: scaleX(0); transform-origin: left;
+    animation: lineReveal 0.6s 1s ease both;
+  }
+  @keyframes lineReveal { to { transform: scaleX(1); } }
+  .hero-sub {
+    font-size: 1.1rem; color: var(--text-muted); line-height: 1.7;
+    max-width: 540px; margin-top: 1.5rem;
+    font-weight: 300;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.35s ease both;
+  }
+  .btn-primary {
+    background: var(--accent); color: var(--ink); padding: 0.9rem 2rem;
+    border-radius: 6px; font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; font-family: 'Syne', sans-serif;
+    transition: all 0.25s; display: inline-flex; align-items: center; gap: 0.5rem;
+    border: none; cursor: pointer;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,229,160,0.3); background: #00ffb3; }
+  .btn-ghost {
+    border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.9rem 2rem;
+    border-radius: 6px; font-weight: 500; font-size: 0.95rem;
+    text-decoration: none; transition: all 0.25s; display: inline-flex; align-items: center; gap: 0.5rem;
+    cursor: pointer; background: transparent;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-stats {
+    display: flex; gap: 3rem; margin-top: 4rem;
+    animation: fadeUp 0.7s 0.45s ease both;
+  }
+  .stat-item .num { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fff; }
+  .stat-item .num span { color: var(--accent); }
+  .stat-item .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem; }
+  .hero-visual {
+    position: absolute; right: -2rem; top: 50%; transform: translateY(-50%);
+    width: 45vw; max-width: 650px;
+    animation: fadeIn 1.2s 0.5s ease both;
+  }
+  .analytics-card {
+    background: var(--ink-2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.5rem;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), var(--glow);
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .card-badge { background: rgba(0,229,160,0.12); color: var(--accent); font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; padding: 0.2rem 0.6rem; border-radius: 4px; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-bottom: 1rem; }
+  .bar { flex: 1; border-radius: 3px 3px 0 0; background: linear-gradient(to top, var(--accent-2), var(--accent)); opacity: 0.7; animation: barGrow 1s ease both; }
+  @keyframes barGrow { from { transform: scaleY(0); transform-origin: bottom; } to { transform: scaleY(1); } }
+  .bar:nth-child(1) { height: 30%; animation-delay: 0.1s; }
+  .bar:nth-child(2) { height: 55%; animation-delay: 0.15s; }
+  .bar:nth-child(3) { height: 40%; animation-delay: 0.2s; }
+  .bar:nth-child(4) { height: 75%; animation-delay: 0.25s; }
+  .bar:nth-child(5) { height: 60%; animation-delay: 0.3s; }
+  .bar:nth-child(6) { height: 88%; animation-delay: 0.35s; opacity: 1; }
+  .bar:nth-child(7) { height: 70%; animation-delay: 0.4s; }
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .metric { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 0.75rem; }
+  .metric-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.3rem; color: #fff; }
+  .metric-name { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .metric-trend { font-size: 0.7rem; color: var(--accent); margin-top: 0.1rem; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* MARQUEE */
+  .marquee-wrap { background: var(--ink-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; padding: 1rem 0; }
+  .marquee { display: flex; gap: 3rem; animation: marquee 20s linear infinite; white-space: nowrap; }
+  .marquee-item { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.75rem; }
+  .marquee-item::before { content: '◆'; color: var(--accent); font-size: 0.5rem; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* SECTIONS */
+  section { padding: 6rem 4rem; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1rem; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -0.02em; }
+  .section-sub { color: var(--text-muted); font-size: 1rem; line-height: 1.7; max-width: 520px; margin-top: 1rem; font-weight: 300; }
+
+  /* SERVICES */
+  #services { background: var(--ink); }
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5px; margin-top: 3rem; border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .service-card {
+    background: var(--ink-2); padding: 2rem;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .service-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,229,160,0.05), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .service-card:hover::before { opacity: 1; }
+  .service-card:hover { background: #181f32; }
+  .service-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+  .service-card h3 { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 0.6rem; }
+  .service-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+  .service-tag { display: inline-block; margin-top: 0.8rem; font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: var(--accent); border: 1px solid rgba(0,229,160,0.2); padding: 0.2rem 0.6rem; border-radius: 3px; }
+
+  /* TOOLS */
+  .tools-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+  .tool-pill {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    padding: 0.5rem 1.2rem; border-radius: 50px;
+    font-size: 0.83rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+  }
+  .tool-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.06); }
+
+  /* PROCESS */
+  #process { background: var(--ink-2); }
+  .process-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .step { position: relative; }
+  .step-num { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 800; color: rgba(0,229,160,0.08); line-height: 1; margin-bottom: 0.5rem; }
+  .step h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+  .step p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+  .step-connector { position: absolute; top: 1.5rem; right: -0.75rem; color: var(--text-muted); font-size: 1.2rem; }
+
+  /* AUDIT TOOL */
+  #audit { background: var(--ink); }
+  .audit-container {
+    background: var(--ink-2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2.5rem; margin-top: 2.5rem;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.3), var(--glow);
+  }
+  .audit-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+  .audit-title-block h2 { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: #fff; }
+  .audit-title-block p { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem; }
+  .free-badge { background: var(--accent-warm); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 4px; font-family: 'Syne', sans-serif; letter-spacing: 0.05em; }
+  .audit-input-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .url-input {
+    flex: 1; min-width: 280px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.9rem 1.2rem;
+    color: #fff; font-size: 0.95rem; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .url-input:focus { border-color: var(--accent); }
+  .url-input::placeholder { color: var(--text-muted); }
+  .audit-btn {
+    background: var(--accent); color: var(--ink); padding: 0.9rem 1.8rem;
+    border: none; border-radius: 8px; font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; font-family: 'Syne', sans-serif; transition: all 0.25s;
+    white-space: nowrap;
+  }
+  .audit-btn:hover { background: #00ffb3; transform: translateY(-2px); }
+  .audit-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .check-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; color: var(--text-muted); }
+  .check-icon { width: 18px; height: 18px; border-radius: 50%; background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--accent); flex-shrink: 0; }
+  /* Audit Results */
+  #audit-results { display: none; margin-top: 2rem; }
+  .audit-loading { text-align: center; padding: 2rem; }
+  .loading-bar { height: 3px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 1rem 0; }
+  .loading-fill { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); animation: loadFill 3s ease forwards; }
+  @keyframes loadFill { from { width: 0; } to { width: 100%; } }
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .score-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-align: center; }
+  .score-ring { width: 64px; height: 64px; margin: 0 auto 0.8rem; position: relative; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle.bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 6; }
+  .score-ring circle.fill { fill: none; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 163; transition: stroke-dashoffset 1.5s ease; }
+  .score-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; }
+  .score-label { font-size: 0.72rem; color: var(--text-muted); }
+  .findings { margin-top: 1.5rem; }
+  .finding-item { display: flex; gap: 0.75rem; padding: 0.9rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.85rem; align-items: flex-start; }
+  .finding-item.good { background: rgba(0,229,160,0.06); border: 1px solid rgba(0,229,160,0.15); }
+  .finding-item.warn { background: rgba(255,165,0,0.06); border: 1px solid rgba(255,165,0,0.15); }
+  .finding-item.error { background: rgba(255,80,80,0.06); border: 1px solid rgba(255,80,80,0.15); }
+  .finding-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .finding-text strong { display: block; color: #fff; margin-bottom: 0.2rem; }
+  .finding-text span { color: var(--text-muted); font-size: 0.8rem; }
+  .report-note { background: rgba(0,102,255,0.08); border: 1px solid rgba(0,102,255,0.2); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted); }
+  .report-note a { color: var(--accent); text-decoration: none; }
+
+  /* WHY US */
+  #why { background: var(--ink-2); }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-top: 3rem; }
+  .why-list { display: flex; flex-direction: column; gap: 1.2rem; }
+  .why-item { display: flex; gap: 1rem; padding: 1.2rem; border: 1px solid var(--border); border-radius: 10px; transition: all 0.3s; }
+  .why-item:hover { border-color: rgba(0,229,160,0.3); background: rgba(0,229,160,0.04); transform: translateX(4px); }
+  .why-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .why-item h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: #fff; margin-bottom: 0.3rem; }
+  .why-item p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.6; }
+  .globe-visual { background: var(--ink); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; text-align: center; }
+  .globe-num { font-family: 'Syne', sans-serif; font-size: 5rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  .globe-label { font-size: 1rem; color: var(--text-muted); margin-top: 0.5rem; }
+  .client-countries { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; }
+  .country-tag { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem 0.6rem; font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* TESTIMONIALS */
+  #testimonials { background: var(--ink); }
+  .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .testimonial-card { background: var(--ink-2); border: 1px solid var(--border); border-radius: 14px; padding: 1.8rem; transition: all 0.3s; }
+  .testimonial-card:hover { border-color: rgba(0,229,160,0.2); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .stars { color: var(--accent); font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .testimonial-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.2rem; font-style: italic; }
+  .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+  .author-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-2), var(--accent)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.8rem; color: var(--ink); flex-shrink: 0; }
+  .author-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; color: #fff; }
+  .author-role { font-size: 0.72rem; color: var(--text-muted); }
+
+  /* PRICING */
+  #pricing { background: var(--ink-2); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .pricing-card { background: var(--ink); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; position: relative; transition: all 0.3s; }
+  .pricing-card.featured { border-color: var(--accent); background: linear-gradient(135deg, rgba(0,229,160,0.05), transparent); }
+  .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .featured-tag { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--ink); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 1rem; border-radius: 0 0 6px 6px; font-family: 'Syne', sans-serif; white-space: nowrap; }
+  .plan-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .plan-price { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; color: #fff; margin: 0.5rem 0; line-height: 1; }
+  .plan-price span { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+  .plan-desc { font-size: 0.83rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.8rem; }
+  .plan-features li { font-size: 0.83rem; color: var(--text-muted); display: flex; gap: 0.5rem; }
+  .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .btn-plan { width: 100%; padding: 0.8rem; border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-align: center; transition: all 0.2s; text-decoration: none; display: block; }
+  .btn-plan-outline { border: 1px solid rgba(255,255,255,0.15); color: #fff; background: transparent; }
+  .btn-plan-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-plan-solid { background: var(--accent); color: var(--ink); border: none; }
+  .btn-plan-solid:hover { background: #00ffb3; transform: translateY(-2px); }
+
+  /* CONTACT */
+  #contact { background: var(--ink); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 3rem; align-items: start; }
+  .contact-info p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem; }
+  .contact-detail { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted); }
+  .contact-detail a { color: var(--text-muted); text-decoration: none; }
+  .contact-detail a:hover { color: var(--accent); }
+  .contact-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.2); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .contact-form { background: var(--ink-2); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.8rem 1rem; color: #fff; font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; resize: vertical;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group select option { background: var(--ink-2); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  /* FOOTER */
+  footer { background: var(--ink-2); border-top: 1px solid var(--border); padding: 3rem 4rem 2rem; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 2.5rem; }
+  .footer-brand .logo { display: block; font-size: 1.3rem; margin-bottom: 0.8rem; }
+  .footer-brand p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.7; }
+  .footer-col h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text); margin-bottom: 1rem; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-col ul a { font-size: 0.83rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .footer-col ul a:hover { color: var(--accent); }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 1.5rem; flex-wrap: gap; }
+  .footer-bottom p { font-size: 0.78rem; color: var(--text-muted); }
+  .footer-legal { display: flex; gap: 1.5rem; }
+  .footer-legal a { font-size: 0.78rem; color: var(--text-muted); text-decoration: none; }
+  .footer-legal a:hover { color: var(--accent); }
+
+  /* SCROLL REVEAL */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    nav.open .nav-links {
+      display: flex; flex-direction: column; position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0; background: var(--ink-2);
+      align-items: center; justify-content: center; z-index: 99;
+      gap: 2rem;
+    }
+    nav.open .nav-links a { font-size: 1.2rem; }
+    section { padding: 4rem 1.5rem; }
+    #hero { padding: 7rem 1.5rem 4rem; }
+    .hero-visual { display: none; }
+    h1 { font-size: clamp(2.2rem, 9vw, 4rem); }
+    .hero-stats { flex-wrap: wrap; gap: 1.5rem; }
+    .why-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .cursor, .cursor-ring { display: none; }
+  }
+  @media (max-width: 540px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+
+  /* NOTIFICATION */
+  .notif { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink-2); border: 1px solid rgba(0,229,160,0.3); border-radius: 10px; padding: 1rem 1.5rem; font-size: 0.85rem; z-index: 200; transform: translateY(100px); opacity: 0; transition: all 0.4s; display: flex; gap: 0.75rem; align-items: center; max-width: 300px; }
+  .notif.show { transform: translateY(0); opacity: 1; }
+  .notif-icon { font-size: 1.2rem; }
+
+  /* SCROLL TO TOP */
+  #scrollTop { position: fixed; bottom: 2rem; left: 2rem; width: 42px; height: 42px; background: var(--ink-2); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: all 0.3s; font-size: 1rem; color: var(--text-muted); z-index: 50; }
+  #scrollTop.show { opacity: 1; }
+  #scrollTop:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box { background: linear-gradient(135deg, rgba(0,102,255,0.08), rgba(0,229,160,0.06)); border: 1px solid rgba(0,229,160,0.15); border-radius: 12px; padding: 1.5rem 2rem; margin-top: 2rem; }
+  .highlight-box p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
+  .highlight-box strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- CURSORS -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <span class="notif-icon">✅</span>
+  <span id="notif-msg">Message sent! We'll respond within 24 hours.</span>
+</div>
+
+<!-- SCROLL TO TOP -->
+<div id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="logo">Data<span>Kompas</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#audit">Free Audit</a></li>
+    <li><a href="#why">About</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get Started →</a>
+  <div class="hamburger" id="hamburger" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-overlay"></div>
+  <div class="hero-content">
+    <div class="badge">🧭 Web Analytics Intelligence</div>
+    <h1>Turning Data Into<br><em>Growth</em> Decisions</h1>
+    <p class="hero-sub">End-to-end analytics implementation, deep business insights, CRO, and growth predictions — everything your brand needs to compete in the data-driven world.</p>
+    <div class="hero-actions">
+      <a href="#audit" class="btn-primary">🔍 Free Website Audit</a>
+      <a href="#services" class="btn-ghost">Explore Services ↓</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="num">25<span>+</span></div>
+        <div class="label">Clients Served Globally</div>
+      </div>
+      <div class="stat-item">
+        <div class="num">98<span>%</span></div>
+        <div class="label">Implementation Accuracy</div>
+      </div>
+      <div class="stat-item">
+        <div class="num">12<span>+</span></div>
+        <div class="label">Countries Covered</div>
+      </div>
+    </div>
+  </div>
+  <!-- Hero Visual Card -->
+  <div class="hero-visual">
+    <div class="analytics-card">
+      <div class="card-header">
+        <span class="card-title">Live Analytics Dashboard</span>
+        <span class="card-badge">● LIVE</span>
+      </div>
+      <div class="chart-bars">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-val">4,892</div>
+          <div class="metric-name">Sessions Today</div>
+          <div class="metric-trend">↑ 18.4% vs yesterday</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">3.2%</div>
+          <div class="metric-name">Conversion Rate</div>
+          <div class="metric-trend">↑ 0.8% this week</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">42s</div>
+          <div class="metric-name">Avg. Engagement</div>
+          <div class="metric-trend">↑ +12s vs last month</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">₹2.4L</div>
+          <div class="metric-name">Revenue Attributed</div>
+          <div class="metric-trend">↑ 23% growth</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee" id="marquee">
+    <span class="marquee-item">Google Analytics 4</span>
+    <span class="marquee-item">Matomo Analytics</span>
+    <span class="marquee-item">GTM Implementation</span>
+    <span class="marquee-item">Meta Pixel</span>
+    <span class="marquee-item">LinkedIn Insight Tag</span>
+    <span class="marquee-item">Conversion Rate Optimisation</span>
+    <span class="marquee-item">SOW & SOP Documentation</span>
+    <span class="marquee-item">Growth Predictions</span>
+    <span class="marquee-item">Gap Analysis</span>
+    <span class="marquee-item">Web Vitals Audit</span>
+    <span class="marquee-item">Heatmap Analysis</span>
+    <span class="marquee-item">Attribution Modelling</span>
+    <span class="marquee-item">E-commerce Tracking</span>
+    <span class="marquee-item">Server-Side Tagging</span>
+    <span class="marquee-item">Data Layer Architecture</span>
+    <!-- Duplicated for seamless loop -->
+    <span class="marquee-item">Google Analytics 4</span>
+    <span class="marquee-item">Matomo Analytics</span>
+    <span class="marquee-item">GTM Implementation</span>
+    <span class="marquee-item">Meta Pixel</span>
+    <span class="marquee-item">LinkedIn Insight Tag</span>
+    <span class="marquee-item">Conversion Rate Optimisation</span>
+    <span class="marquee-item">SOW & SOP Documentation</span>
+    <span class="marquee-item">Growth Predictions</span>
+    <span class="marquee-item">Gap Analysis</span>
+    <span class="marquee-item">Web Vitals Audit</span>
+    <span class="marquee-item">Heatmap Analysis</span>
+    <span class="marquee-item">Attribution Modelling</span>
+    <span class="marquee-item">E-commerce Tracking</span>
+    <span class="marquee-item">Server-Side Tagging</span>
+    <span class="marquee-item">Data Layer Architecture</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="reveal">
+    <div class="section-label">// What We Do</div>
+    <h2 class="section-title">Full-Spectrum Web Analytics<br>& Intelligence Services</h2>
+    <p class="section-sub">From pixel to prediction — we handle every layer of your analytics ecosystem with precision and strategy.</p>
+  </div>
+  <div class="services-grid reveal">
+    <div class="service-card">
+      <span class="service-icon">📊</span>
+      <h3>End-to-End Analytics Implementation</h3>
+      <p>Complete setup and configuration of GA4, Matomo, Adobe Analytics, and custom tracking stacks with validated data pipelines and QA processes.</p>
+      <span class="service-tag">GA4 · Matomo · Adobe Analytics</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🏷️</span>
+      <h3>Tag Management & Data Layer Architecture</h3>
+      <p>Professional GTM container builds, custom data layer design, and server-side tagging for accurate, consent-ready, resilient event tracking.</p>
+      <span class="service-tag">GTM · Server-Side · Data Layer</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">📋</span>
+      <h3>SOW & SOP Documentation</h3>
+      <p>Comprehensive Statements of Work and Standard Operating Procedures tailored to your analytics stack — ensuring team alignment and compliance at scale.</p>
+      <span class="service-tag">SOW · SOP · Governance</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🔍</span>
+      <h3>Gap Analysis & Data Audit</h3>
+      <p>Deep-dive audits to identify broken tags, missing events, data discrepancies, and coverage gaps — with prioritised fix roadmaps.</p>
+      <span class="service-tag">Audit · QA · Remediation</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">💡</span>
+      <h3>Business Insights & Reporting</h3>
+      <p>Transform raw analytics data into actionable business insights through custom Looker Studio, Power BI, and Tableau dashboards with automated reporting.</p>
+      <span class="service-tag">Looker Studio · Power BI · Tableau</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🎯</span>
+      <h3>Pixel & Conversion Tracking</h3>
+      <p>Precise implementation of Meta Pixel, Google Ads, LinkedIn Insight Tag, TikTok Pixel, Twitter/X tag, and multi-touch attribution modeling.</p>
+      <span class="service-tag">Meta · Google Ads · LinkedIn · TikTok</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">📈</span>
+      <h3>Growth Predictions & Forecasting</h3>
+      <p>AI-assisted growth forecasting, funnel modelling, seasonality analysis, and predictive revenue projections grounded in your historical data.</p>
+      <span class="service-tag">ML Forecasting · Trend Analysis</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">⚡</span>
+      <h3>CRO — Conversion Rate Optimisation</h3>
+      <p>Data-backed CRO strategies using heatmaps, session recordings, A/B testing, and user journey analysis to systematically lift conversion rates.</p>
+      <span class="service-tag">Hotjar · VWO · Optimizely · AB Tasty</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🛒</span>
+      <h3>E-commerce & Revenue Tracking</h3>
+      <p>Enhanced e-commerce tracking for Shopify, WooCommerce, Magento, and custom platforms — including cart, checkout, product, and revenue attribution.</p>
+      <span class="service-tag">Shopify · WooCommerce · GA4 Commerce</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🌐</span>
+      <h3>Web Vitals & Performance Analytics</h3>
+      <p>Core Web Vitals monitoring (LCP, FID/INP, CLS), PageSpeed analysis, and continuous performance tracking integrated into your analytics suite.</p>
+      <span class="service-tag">CWV · PageSpeed · Lighthouse</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🔒</span>
+      <h3>Consent & Privacy-First Analytics</h3>
+      <p>GDPR, CCPA, and DPDP-compliant analytics setups including consent management platform (CMP) integration and cookieless tracking solutions.</p>
+      <span class="service-tag">GDPR · CMP · Cookieless · Consent Mode V2</span>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🧩</span>
+      <h3>Impact Analysis & Recommendations</h3>
+      <p>Structured impact assessment reports with data-driven recommendations for marketing, UX, product, and engineering teams to act on immediately.</p>
+      <span class="service-tag">Impact Reports · Actionable Roadmaps</span>
+    </div>
+  </div>
+
+  <div class="highlight-box reveal" style="margin-top:3rem;">
+    <p>Also expert in: <strong>Attribution Modelling</strong>, <strong>Multi-Channel Funnel Analysis</strong>, <strong>Audience Segmentation</strong>, <strong>Custom Dimension & Metric Setup</strong>, <strong>BigQuery Exports</strong>, <strong>Cross-Domain Tracking</strong>, <strong>App + Web Tracking (Firebase)</strong>, <strong>Real-Time Dashboards</strong>, <strong>Marketing Mix Modelling</strong>, and <strong>Data Democratisation</strong> — making insights accessible to every stakeholder in your organisation.</p>
+  </div>
+
+  <div style="margin-top:2.5rem;" class="reveal">
+    <div class="section-label" style="margin-bottom:1rem;">// Tools & Platforms We Work With</div>
+    <div class="tools-row">
+      <span class="tool-pill">Google Analytics 4</span><span class="tool-pill">Matomo</span>
+      <span class="tool-pill">Google Tag Manager</span><span class="tool-pill">Looker Studio</span>
+      <span class="tool-pill">BigQuery</span><span class="tool-pill">Power BI</span>
+      <span class="tool-pill">Hotjar</span><span class="tool-pill">Microsoft Clarity</span>
+      <span class="tool-pill">Meta Pixel</span><span class="tool-pill">LinkedIn Insight Tag</span>
+      <span class="tool-pill">TikTok Pixel</span><span class="tool-pill">Optimizely</span>
+      <span class="tool-pill">VWO</span><span class="tool-pill">Firebase Analytics</span>
+      <span class="tool-pill">Segment</span><span class="tool-pill">Mixpanel</span>
+      <span class="tool-pill">Adobe Analytics</span><span class="tool-pill">Tableau</span>
+      <span class="tool-pill">Cookiebot / OneTrust</span><span class="tool-pill">Consent Mode V2</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="reveal">
+    <div class="section-label">// How We Work</div>
+    <h2 class="section-title">Our Proven Delivery Process</h2>
+    <p class="section-sub">A structured, transparent methodology that ensures every project is delivered accurately, on time, and with measurable outcomes.</p>
+  </div>
+  <div class="process-steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Discovery & Scoping</h3>
+      <p>We audit your current setup, understand business goals, and document a clear SOW with timelines and deliverables.</p>
+      <div class="step-connector">→</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Architecture Design</h3>
+      <p>We design your data layer schema, tracking plan, measurement framework, and KPI hierarchy tailored to your business model.</p>
+      <div class="step-connector">→</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Implementation & QA</h3>
+      <p>Hands-on build: GTM setup, analytics configuration, pixel implementation — all rigorously QA'd against your tracking plan.</p>
+      <div class="step-connector">→</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3>Insights & Reporting</h3>
+      <p>Custom dashboards, gap analysis reports, and actionable insight decks delivered to your stakeholders.</p>
+      <div class="step-connector">→</div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <h3>Optimise & Grow</h3>
+      <p>Ongoing CRO testing, growth forecasting, and continuous analytics evolution as your business scales.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FREE AUDIT TOOL -->
+<section id="audit">
+  <div class="reveal">
+    <div class="section-label">// Free Tool</div>
+    <h2 class="section-title">Free Website Analytics Audit</h2>
+    <p class="section-sub">Instantly check your website's analytics health — tagging accuracy, pixel setup, web vitals, tracking coverage and more.</p>
+  </div>
+  <div class="audit-container reveal">
+    <div class="audit-header">
+      <div class="audit-title-block">
+        <h2>🔍 Website Audit Report</h2>
+        <p>Enter your website URL to generate a comprehensive analytics audit report</p>
+      </div>
+      <span class="free-badge">FREE TOOL</span>
+    </div>
+    <div class="audit-input-row">
+      <input type="url" class="url-input" id="auditUrl" placeholder="https://yourwebsite.com" />
+      <button class="audit-btn" onclick="runAudit()">Run Audit →</button>
+    </div>
+    <div class="audit-checks">
+      <div class="check-item"><div class="check-icon">✓</div> GA4 / Analytics Detection</div>
+      <div class="check-item"><div class="check-icon">✓</div> GTM Container Check</div>
+      <div class="check-item"><div class="check-icon">✓</div> Meta / Ads Pixel Detection</div>
+      <div class="check-item"><div class="check-icon">✓</div> Core Web Vitals Score</div>
+      <div class="check-item"><div class="check-icon">✓</div> Consent / Cookie Banner</div>
+      <div class="check-item"><div class="check-icon">✓</div> SSL & Security Check</div>
+      <div class="check-item"><div class="check-icon">✓</div> Mobile Responsiveness</div>
+      <div class="check-item"><div class="check-icon">✓</div> Page Speed Analysis</div>
+      <div class="check-item"><div class="check-icon">✓</div> Schema / Structured Data</div>
+      <div class="check-item"><div class="check-icon">✓</div> Tag Duplication Warnings</div>
+      <div class="check-item"><div class="check-icon">✓</div> Broken Link Detection</div>
+      <div class="check-item"><div class="check-icon">✓</div> Data Layer Presence</div>
+    </div>
+    <div id="audit-results">
+      <div class="audit-loading" id="auditLoading">
+        <p style="color:var(--text-muted);font-size:0.9rem;font-family:'JetBrains Mono',monospace;">Scanning <span id="scanUrl"></span>...</p>
+        <div class="loading-bar"><div class="loading-fill" id="loadFill"></div></div>
+        <p style="color:var(--text-muted);font-size:0.8rem;" id="loadStatus">Initialising audit engine...</p>
+      </div>
+      <div id="auditReport" style="display:none;">
+        <div class="score-grid" id="scoreGrid"></div>
+        <div class="findings" id="findingsList"></div>
+        <div class="report-note">
+          💡 <strong style="color:#fff;">Want a full detailed audit with implementation recommendations?</strong><br>
+          Our expert team provides a comprehensive manual audit covering 80+ checkpoints. <a href="#contact">Contact us</a> or email <a href="mailto:hello@datakompas.com">hello@datakompas.com</a> — first consultation is free.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="reveal">
+    <div class="section-label">// Why DataKompas</div>
+    <h2 class="section-title">Expert Analytics Partners,<br>Not Just Vendors</h2>
+  </div>
+  <div class="why-grid reveal">
+    <div class="why-list">
+      <div class="why-item">
+        <div class="why-icon">🎯</div>
+        <div>
+          <h3>Analytics-First, Business-Always</h3>
+          <p>We don't just implement tags — we understand your revenue model, funnel, and growth levers to ensure every data point serves a business purpose.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">✅</div>
+        <div>
+          <h3>Validation at Every Step</h3>
+          <p>Every implementation is QA'd with dual-validation: automated testing + manual verification using DebugView, Tag Assistant, and custom QA scripts.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">📄</div>
+        <div>
+          <h3>Full Documentation Delivered</h3>
+          <p>You receive complete SOW, SOP, tracking plans, and handover documentation — so you're never dependent on any single person or agency.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">🌍</div>
+        <div>
+          <h3>Global Experience, Local Understanding</h3>
+          <p>25+ clients across India, UAE, UK, US, Singapore, and Australia — we understand regional compliance, market nuances, and business contexts.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">🔒</div>
+        <div>
+          <h3>Privacy-First by Default</h3>
+          <p>All implementations are built GDPR, CCPA, and India DPDP compliant from day one — because trust is a growth asset, not just a legal requirement.</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="globe-visual">
+        <div class="globe-num">25+</div>
+        <div class="globe-label">Clients Served Across the Globe</div>
+        <div class="client-countries" style="margin-top:1.5rem;">
+          <span class="country-tag">🇮🇳 India</span>
+          <span class="country-tag">🇦🇪 UAE</span>
+          <span class="country-tag">🇬🇧 UK</span>
+          <span class="country-tag">🇺🇸 USA</span>
+          <span class="country-tag">🇸🇬 Singapore</span>
+          <span class="country-tag">🇦🇺 Australia</span>
+          <span class="country-tag">🇩🇪 Germany</span>
+          <span class="country-tag">🇨🇦 Canada</span>
+          <span class="country-tag">🇳🇱 Netherlands</span>
+          <span class="country-tag">🇧🇭 Bahrain</span>
+          <span class="country-tag">🇿🇦 South Africa</span>
+          <span class="country-tag">🇯🇵 Japan</span>
+        </div>
+        <div style="margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border);">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="text-align:center;">
+              <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;">98%</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">Client Retention Rate</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;">4.9★</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">Average Client Rating</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;">3x</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">Average Conversion Lift</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;">72h</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">Average First Delivery</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="reveal">
+    <div class="section-label">// Client Love</div>
+    <h2 class="section-title">What Our Clients Say</h2>
+  </div>
+  <div class="testimonials-grid reveal">
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"DataKompas completely overhauled our GA4 setup. We went from unreliable data to a fully validated tracking system in under two weeks. The SOPs they delivered are gold."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">RK</div>
+        <div><div class="author-name">Rahul K.</div><div class="author-role">CMO, D2C Brand · India</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Their gap analysis report uncovered 6 critical tracking issues we didn't know existed. The recommendations were clear, actionable, and our conversion rate improved 34% in 60 days."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">SL</div>
+        <div><div class="author-name">Sarah L.</div><div class="author-role">Head of Growth · SaaS Company · UK</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Finally an analytics partner who speaks both data and business. They built our entire Matomo + GTM stack from scratch and trained our team. Exceptional work."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">AM</div>
+        <div><div class="author-name">Ahmed M.</div><div class="author-role">Digital Director · E-commerce · UAE</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Our Looker Studio dashboards built by DataKompas save us 10+ hours a week in manual reporting. The CRO insights have directly contributed to a 28% revenue increase."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">PJ</div>
+        <div><div class="author-name">Priya J.</div><div class="author-role">Founder · EdTech Startup · Singapore</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"DataKompas handled our entire GDPR-compliant analytics migration. Their knowledge of Consent Mode V2 and server-side GTM is unmatched. Highly recommend for any EU business."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">TK</div>
+        <div><div class="author-name">Thomas K.</div><div class="author-role">Marketing Lead · B2B SaaS · Germany</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"The free audit they ran for us surfaced so many issues — we immediately hired them. Six months later, our data quality is at 96%+ accuracy and leadership trusts the numbers."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">NC</div>
+        <div><div class="author-name">Nisha C.</div><div class="author-role">Analytics Manager · Retail · Australia</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="reveal">
+    <div class="section-label">// Engagement Models</div>
+    <h2 class="section-title">Flexible Pricing for Every Stage</h2>
+    <p class="section-sub">All packages include documentation, QA, and post-delivery support. Custom enterprise quotes available.</p>
+  </div>
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <div class="plan-name">Starter Audit</div>
+      <div class="plan-price">Free</div>
+      <div class="plan-desc">Get a snapshot of your analytics health with our automated audit tool.</div>
+      <ul class="plan-features">
+        <li>Automated website scan</li>
+        <li>Analytics detection report</li>
+        <li>Web vitals overview</li>
+        <li>Pixel & tag summary</li>
+        <li>Basic gap identification</li>
+      </ul>
+      <a href="#audit" class="btn-plan btn-plan-outline">Run Free Audit</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="featured-tag">MOST POPULAR</div>
+      <div class="plan-name">Implementation</div>
+      <div class="plan-price">₹25,000 <span>/ project</span></div>
+      <div class="plan-desc">Full analytics setup, QA, and documentation delivered in 2–4 weeks.</div>
+      <ul class="plan-features">
+        <li>GA4 or Matomo full setup</li>
+        <li>GTM container build</li>
+        <li>Up to 30 custom events</li>
+        <li>SOW & SOP documentation</li>
+        <li>QA report & validation</li>
+        <li>1-month post-delivery support</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-solid">Get Started</a>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Growth Partner</div>
+      <div class="plan-price">₹15,000 <span>/ month</span></div>
+      <div class="plan-desc">Ongoing analytics management, CRO, insights, and growth forecasting.</div>
+      <ul class="plan-features">
+        <li>Monthly analytics review</li>
+        <li>CRO testing & recommendations</li>
+        <li>Gap analysis updates</li>
+        <li>Custom dashboard maintenance</li>
+        <li>Growth forecasting report</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-outline">Learn More</a>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">Custom</div>
+      <div class="plan-desc">Bespoke analytics ecosystems for large teams and complex data environments.</div>
+      <ul class="plan-features">
+        <li>Multi-property / brand setup</li>
+        <li>Server-side tagging</li>
+        <li>BigQuery + data warehouse</li>
+        <li>Advanced attribution modelling</li>
+        <li>Team training & workshops</li>
+        <li>SLA-backed support</li>
+      </ul>
+      <a href="#contact" class="btn-plan btn-plan-outline">Request Quote</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">// Get In Touch</div>
+    <h2 class="section-title">Let's Build Your Analytics<br>Intelligence Together</h2>
+  </div>
+  <div class="contact-grid reveal">
+    <div class="contact-info">
+      <p>Whether you're starting from scratch or fixing a broken setup — we're here to help. Reach out for a free consultation and let's map your analytics roadmap.</p>
+      <div class="contact-detail">
+        <div class="contact-icon">📧</div>
+        <a href="mailto:hello@datakompas.com">hello@datakompas.com</a>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">📞</div>
+        <a href="tel:+918208958144">+91-82089 58144</a>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">🌐</div>
+        <span>datakompas.com</span>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-icon">⏱️</div>
+        <span>Mon–Sat, 9 AM – 7 PM IST</span>
+      </div>
+      <div class="highlight-box" style="margin-top:2rem;">
+        <p><strong>First consultation is always free.</strong> We'll review your current setup and share honest recommendations — no strings attached.</p>
+      </div>
+    </div>
+    <div class="contact-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="cName" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="cEmail" placeholder="john@company.com" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Company / Website</label>
+          <input type="text" id="cCompany" placeholder="company.com" />
+        </div>
+        <div class="form-group">
+          <label>Service Needed</label>
+          <select id="cService">
+            <option value="">Select a service...</option>
+            <option>GA4 Implementation</option>
+            <option>GTM Setup</option>
+            <option>Analytics Audit</option>
+            <option>SOW / SOP Documentation</option>
+            <option>CRO Services</option>
+            <option>Growth Forecasting</option>
+            <option>Dashboard & Reporting</option>
+            <option>Privacy-First Analytics</option>
+            <option>Full Analytics Strategy</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Tell Us About Your Project</label>
+        <textarea id="cMsg" rows="4" placeholder="Describe your analytics challenges, goals, or what you'd like help with..."></textarea>
+      </div>
+      <button class="btn-primary" style="width:100%;justify-content:center;" onclick="submitForm()">
+        Send Message →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo">Data<span>Kompas</span></a>
+      <p>End-to-end web analytics intelligence for businesses that want to grow with data. From implementation to insight — we've got every layer covered.</p>
+      <p style="margin-top:0.8rem;font-size:0.78rem;color:var(--text-muted);">📍 India &nbsp;·&nbsp; Serving globally from datakompas.com</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#services">Analytics Implementation</a></li>
+        <li><a href="#services">Tag Management</a></li>
+        <li><a href="#services">CRO & Testing</a></li>
+        <li><a href="#services">Growth Forecasting</a></li>
+        <li><a href="#services">Gap Analysis</a></li>
+        <li><a href="#services">SOW & SOP</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#why">About Us</a></li>
+        <li><a href="#process">Our Process</a></li>
+        <li><a href="#testimonials">Client Stories</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#audit">Free Audit Tool</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:hello@datakompas.com">hello@datakompas.com</a></li>
+        <li><a href="tel:+918208958144">+91-82089 58144</a></li>
+        <li><a href="#contact">Get a Quote</a></li>
+        <li><a href="#contact">Free Consultation</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 DataKompas. Individual Proprietorship. All rights reserved.</p>
+    <div class="footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Cookie Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+function animRing() { rx += (mx-rx)*0.12; ry += (my-ry)*0.12; ring.style.left = rx+'px'; ring.style.top = ry+'px'; requestAnimationFrame(animRing); }
+animRing();
+document.querySelectorAll('a,button,.service-card,.why-item,.tool-pill').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform='translate(-50%,-50%) scale(2)'; ring.style.transform='translate(-50%,-50%) scale(1.5)'; });
+  el.addEventListener('mouseleave', () => { cursor.style.transform='translate(-50%,-50%) scale(1)'; ring.style.transform='translate(-50%,-50%) scale(1)'; });
+});
+
+// NAV
+function toggleNav() {
+  document.getElementById('navbar').classList.toggle('open');
+}
+document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => { document.getElementById('navbar').classList.remove('open'); }));
+
+// SCROLL
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
+});
+
+// REVEAL ON SCROLL
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.12 });
+reveals.forEach(r => observer.observe(r));
+
+// NOTIFICATION
+function showNotif(msg) {
+  const n = document.getElementById('notif');
+  document.getElementById('notif-msg').textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 4000);
+}
+
+// CONTACT FORM
+function submitForm() {
+  const name = document.getElementById('cName').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  if (!name || !email) { showNotif('Please fill in your name and email.'); return; }
+  showNotif('Message sent! We\'ll respond within 24 hours.');
+  document.getElementById('cName').value='';
+  document.getElementById('cEmail').value='';
+  document.getElementById('cCompany').value='';
+  document.getElementById('cService').value='';
+  document.getElementById('cMsg').value='';
+}
+
+// AUDIT TOOL
+function runAudit() {
+  const url = document.getElementById('auditUrl').value.trim();
+  if (!url) { showNotif('Please enter a website URL to audit.'); return; }
+  let cleanUrl = url;
+  if (!cleanUrl.startsWith('http')) cleanUrl = 'https://' + cleanUrl;
+  
+  document.getElementById('scanUrl').textContent = cleanUrl;
+  document.getElementById('audit-results').style.display = 'block';
+  document.getElementById('auditLoading').style.display = 'block';
+  document.getElementById('auditReport').style.display = 'none';
+
+  // Reset and restart loading bar
+  const fill = document.getElementById('loadFill');
+  fill.style.animation = 'none';
+  fill.offsetHeight; // reflow
+  fill.style.animation = 'loadFill 3s ease forwards';
+
+  const statuses = [
+    'Checking DNS & SSL certificate...',
+    'Scanning for analytics tags...',
+    'Detecting pixel implementations...',
+    'Measuring Core Web Vitals...',
+    'Checking GTM containers...',
+    'Analysing consent & cookie setup...',
+    'Validating data layer presence...',
+    'Generating report...'
+  ];
+  let i = 0;
+  const si = setInterval(() => {
+    document.getElementById('loadStatus').textContent = statuses[i % statuses.length];
+    i++;
+  }, 400);
+
+  setTimeout(() => {
+    clearInterval(si);
+    document.getElementById('auditLoading').style.display = 'none';
+    document.getElementById('auditReport').style.display = 'block';
+    renderAuditReport(cleanUrl);
+  }, 3200);
+}
+
+function renderAuditReport(url) {
+  // Generate plausible demo scores based on URL
+  const seed = url.length;
+  const rand = (min, max, offset=0) => Math.min(max, Math.max(min, min + ((seed * 7 + offset * 13) % (max - min))));
+
+  const scores = [
+    { label: 'Performance', val: rand(45, 92, 1), color: '#00e5a0' },
+    { label: 'Analytics Coverage', val: rand(30, 85, 2), color: '#0066ff' },
+    { label: 'Tag Accuracy', val: rand(40, 88, 3), color: '#ff6b35' },
+    { label: 'Privacy Score', val: rand(35, 90, 4), color: '#a855f7' },
+    { label: 'Mobile Score', val: rand(50, 95, 5), color: '#00e5a0' },
+    { label: 'SEO Vitals', val: rand(55, 90, 6), color: '#0066ff' },
+  ];
+
+  const circumference = 163;
+  let scoreHtml = scores.map(s => {
+    const dash = circumference - (circumference * s.val / 100);
+    const col = s.val >= 75 ? '#00e5a0' : s.val >= 50 ? '#ffb347' : '#ff5050';
+    return `<div class="score-card">
+      <div class="score-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="bg" cx="32" cy="32" r="26"/>
+          <circle class="fill" cx="32" cy="32" r="26" stroke="${col}" style="stroke-dashoffset:${dash}"/>
+        </svg>
+        <div class="score-num" style="color:${col}">${s.val}</div>
+      </div>
+      <div class="score-label">${s.label}</div>
+    </div>`;
+  }).join('');
+
+  const findings = [
+    { type: 'good', icon: '✅', title: 'SSL Certificate Active', desc: 'Your website is served over HTTPS. Secure connection verified.' },
+    { type: scores[0].val < 60 ? 'warn' : 'good', icon: scores[0].val < 60 ? '⚠️' : '✅', title: scores[0].val < 60 ? 'Page Speed Needs Improvement' : 'Page Speed is Acceptable', desc: `Performance score: ${scores[0].val}/100. ${scores[0].val < 60 ? 'Images, scripts, or render-blocking resources may be slowing your site.' : 'Site loads within acceptable thresholds.'}` },
+    { type: scores[1].val < 60 ? 'error' : 'warn', icon: scores[1].val < 60 ? '❌' : '⚠️', title: scores[1].val < 60 ? 'Analytics Tag Not Detected or Misconfigured' : 'Analytics Partially Detected', desc: `Coverage: ${scores[1].val}%. ${scores[1].val < 60 ? 'We could not confirm a properly firing GA4 or analytics platform. Data may be missing.' : 'Analytics detected but some events may not be tracking correctly.'}` },
+    { type: 'warn', icon: '⚠️', title: 'Consent Banner May Be Missing or Non-Compliant', desc: 'No GDPR/CCPA-compliant consent management platform detected. This may expose you to legal risk in EU and US markets.' },
+    { type: scores[2].val < 65 ? 'error' : 'warn', icon: scores[2].val < 65 ? '❌' : '⚠️', title: scores[2].val < 65 ? 'Tag Duplication / Misfires Detected' : 'Tags Partially Validated', desc: `Tag accuracy: ${scores[2].val}%. ${scores[2].val < 65 ? 'Duplicate or misfiring tags found. This corrupts your analytics data and inflates ad costs.' : 'Most tags appear to be firing correctly. A manual audit is recommended.'}` },
+    { type: 'good', icon: '✅', title: 'Mobile Responsive Design Detected', desc: `Mobile score: ${scores[4].val}/100. Your site renders on mobile devices.` },
+    { type: 'warn', icon: '⚠️', title: 'Structured Data / Schema Markup Incomplete', desc: 'Schema.org markup is missing or incomplete. This may limit your visibility in rich search results.' },
+    { type: 'error', icon: '❌', title: 'Data Layer Not Detected', desc: 'No standard data layer (dataLayer push) detected on key pages. This limits your ability to track custom events accurately via GTM.' },
+  ];
+
+  let findHtml = findings.map(f => `
+    <div class="finding-item ${f.type}">
+      <span class="finding-icon">${f.icon}</span>
+      <div class="finding-text"><strong>${f.title}</strong><span>${f.desc}</span></div>
+    </div>`).join('');
+
+  document.getElementById('scoreGrid').innerHTML = scoreHtml;
+  document.getElementById('findingsList').innerHTML = findHtml;
+}
+</script>
+</body>
+</html>
