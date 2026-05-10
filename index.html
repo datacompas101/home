@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DataKompas – Web Analytics Intelligence</title>
+
+<!-- Security Headers (meta equivalents; enforce these as HTTP headers server-side for full effect) -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
   <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -12,8 +18,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-MBQ94FTX');</script>
 <!-- End Google Tag Manager -->
 <meta name="description" content="End-to-end web analytics implementation, insights, CRO, and growth predictions. Expert analytics for modern businesses.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" referrerpolicy="no-referrer">
 <style>
   :root {
     --ink: #0a0e1a;
@@ -193,6 +200,123 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   /* SECTIONS */
   section { padding: 6rem 4rem; }
   .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1rem; }
+  .section-title { font-family:  sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -0.02em; }
+  .section-sub { color: var(--text-muted); font-size: 1rem; line-height: 1.7; max-width: 520px; margin-top: 1rem; font-weight: 300; }
+
+  /* SERVICES */
+  #services { background: var(--ink); }
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5px; margin-top: 3rem; border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .service-card {
+    background: var(--ink-2); padding: 2rem;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .service-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,229,160,0.05), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .service-card:hover::before { opacity: 1; }
+  .service-card:hover { background: #181f32; }
+  .service-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+  .service-card h3 { font-family:  sans-serif; font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 0.6rem; }
+  .service-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+  .service-tag { display: inline-block; margin-top: 0.8rem; font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: var(--accent); border: 1px solid rgba(0,229,160,0.2); padding: 0.2rem 0.6rem; border-radius: 3px; }
+
+  /* TOOLS */
+  .tools-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+  .tool-pill {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    padding: 0.5rem 1.2rem; border-radius: 50px;
+    font-size: 0.83rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+  }
+  .tool-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.06); }
+
+  /* PROCESS */
+  #process { background: var(--ink-2); }
+  .process-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .step { position: relative; }
+  .step-num { font-family:  sans-serif; font-size: 3.5rem; font-weight: 800; color: rgba(0,229,160,0.08); line-height: 1; margin-bottom: 0.5rem; }
+  .step h3 { font-family:  sans-serif; font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+  .step p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+  .step-connector { position: absolute; top: 1.5rem; right: -0.75rem; color: var(--text-muted); font-size: 1.2rem; }
+
+  /* AUDIT TOOL */
+  #audit { background: var(--ink); }
+  .audit-container {
+    background: var(--ink-2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2.5rem; margin-top: 2.5rem;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.3), var(--glow);
+  }
+  .audit-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+  .audit-title-block h2 { font-family:  sans-serif; font-size: 1.5rem; font-weight: 800; color: #fff; }
+  .audit-title-block p { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem; }
+  .free-badge { background: var(--accent-warm); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 4px; font-family:  sans-serif; letter-spacing: 0.05em; }
+  .audit-input-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .url-input {
+    flex: 1; min-width: 280px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.9rem 1.2rem;
+    color: #fff; font-size: 0.95rem; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .url-input:focus { border-color: var(--accent); }
+  .url-input::placeholder { color: var(--text-muted); }
+  .audit-btn {
+    background: var(--accent); color: var(--ink); padding: 0.9rem 1.8rem;
+    border: none; border-radius: 8px; font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; font-family:  sans-serif; transition: all 0.25s;
+    white-space: nowrap;
+  }
+  .audit-btn:hover { background: #00ffb3; transform: translateY(-2px); }
+  .audit-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .check-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; color: var(--text-muted); }
+  .check-icon { width: 18px; height: 18px; border-radius: 50%; background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--accent); flex-shrink: 0; }
+  /* Audit Results */
+  #audit-results { display: none; margin-top: 2rem; }
+  .audit-loading { text-align: center; padding: 2rem; }
+  .loading-bar { height: 3px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 1rem 0; }
+  .loading-fill { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); animation: loadFill 3s ease forwards; }
+  @keyframes loadFill { from { width: 0; } to { width: 100%; } }
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .score-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-align: center; }
+  .score-ring { width: 64px; height: 64px; margin: 0 auto 0.8rem; position: relative; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle.bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 6; }
+  .score-ring circle.fill { fill: none; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 163; transition: stroke-dashoffset 1.5s ease; }
+  .score-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family:  sans-serif; font-weight: 800; font-size: 1rem; }
+  .score-label { font-size: 0.72rem; color: var(--text-muted); }
+  .findings { margin-top: 1.5rem; }
+  .finding-item { display: flex; gap: 0.75rem; padding: 0.9rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.85rem; align-items: flex-start; }
+  .finding-item.good { background: rgba(0,229,160,0.06); border: 1px solid rgba(0,229,160,0.15); }
+  .finding-item.warn { background: rgba(255,165,0,0.06); border: 1px solid rgba(255,165,0,0.15); }
+  .finding-item.error { background: rgba(255,80,80,0.06); border: 1px solid rgba(255,80,80,0.15); }
+  .finding-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .finding-text strong { display: block; color: #fff; margin-bottom: 0.2rem; }
+  .finding-text span { color: var(--text-muted); font-size: 0.8rem; }
+  .report-note { background: rgba(0,102,255,0.08); border: 1px solid rgba(0,102,255,0.2); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted); }
+  .report-note a { color: var(--accent); text-decoration: none; }
+
+  /* WHY US */
+  #why { background: var(--ink-2); }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-top: 3rem; }
+  .why-list { display: flex; flex-direction: column; gap: 1.2rem; }
+  .why-item { display: flex; gap: 1rem; padding: 1.2rem; border: 1px solid var(--border); border-radius: 10px; transition: all 0.3s; }
+  .why-item:hover { border-color: rgba(0,229,160,0.3); background: rgba(0,229,160,0.04); transform: translateX(4px); }
+  .why-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .why-item h3 { font-family:  sans-serif; font-weight: 700; font-size: 0.95rem; color: #fff; margin-bottom: 0.3rem; }
+  .why-item p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.6; }
+  .globe-visual { background: var(--ink); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; text-align: center; }
+  .globe-num { font-family:  sans-serif; font-size: 5rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  .globe-label { font-size: 1rem; color: var(--text-muted); margin-top: 0.5rem; }
+  .client-countries { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; }
+  .country-tag { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem 0.6rem; font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* TESTIMONIALS */
+  #testimonials { background: var(--ink); }
+  .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .testimonial-card { background: var(--ink-2); monospace; font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1rem; }
   .section-title { font-family:  sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -0.02em; }
   .section-sub { color: var(--text-muted); font-size: 1rem; line-height: 1.7; max-width: 520px; margin-top: 1rem; font-weight: 300; }
 
@@ -978,7 +1102,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="contact-detail">
         <div class="contact-icon">📞</div>
-        <a href="tel:+918208958144">+91-82089 58144</a>
+        <a href="tel:+919503109457">+91-95031 09457</a>
       </div>
       <div class="contact-detail">
         <div class="contact-icon">🌐</div>
